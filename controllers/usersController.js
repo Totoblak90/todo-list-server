@@ -2,18 +2,6 @@ const db = require("../database/models");
 const bcryptjs = require("bcryptjs");
 const { validationResult } = require("express-validator");
 
-var connectionFailResponse = (err) => {
-  return {
-    meta: {
-      status: 500,
-    },
-    data: {
-      msg: "Unknown error. Please check connection to database or reload.",
-      error: JSON.stringify(err),
-    },
-  };
-};
-
 async function findUser(email) {
   let user;
   try {
@@ -32,7 +20,7 @@ async function findUser(email) {
     });
     return user;
   } catch (error) {
-    res.json(connectionFailResponse(error));
+    console.log(error)
   }
 }
 
@@ -48,8 +36,6 @@ module.exports = {
     }
 
     if (user && passwordCheck) {
-      user.password = undefined;
-
       res.json({
         meta: {
           status: 200,
@@ -102,7 +88,7 @@ module.exports = {
             },
           });
         })
-        .catch((err) => connectionFailResponse(err));
+        .catch((err) => console.log(err));
     }
   },
 };
