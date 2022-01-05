@@ -3,7 +3,7 @@ var router = express.Router();
 var foldersController = require("../controllers/foldersController");
 var foldersValidate = require("../middlewares/foldersValidate");
 
-/* GET home page. */
+/* GET all folders. */
 router.get("/:userid", foldersController.list);
 
 /** POST create folder */

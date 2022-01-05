@@ -45,10 +45,17 @@ module.exports = {
         },
       });
     } else {
-      db.Folder.create({
-        users_id: req.body.users_id,
-        name: req.body.name,
-      })
+      db.Folder.create(
+        {
+          users_id: req.body.users_id,
+          name: req.body.name,
+        },
+        {
+          include: {
+            association: "Todos",
+          },
+        }
+      )
         .then((value) => {
           res.json({
             meta: {
@@ -145,21 +152,49 @@ module.exports = {
       });
   },
   delete: (req, res, next) => {
-    db.Folder.destroy({
+    db.Todo.destroy({
       where: {
-        id: {
-          [db.Sequelize.Op.like]: [req.params.id],
-        },
+        folders_id: req.params.id,
       },
     })
-      .then((x) => {
-        if (x) {
-          return res.json({
-            meta: {
-              status: 200,
+      .then((y) => {
+        if (y) {
+          db.Folder.destroy({
+            where: {
+              id: {
+                [db.Sequelize.Op.like]: [req.params.id],
+              },
             },
-            data: `Successfully deleted folder id: ${req.params.id}`,
-          });
+          })
+            .then((x) => {
+              if (x && y) {
+                return res.json({
+                  meta: {
+                    status: 200,
+                  },
+                  data: `Successfully deleted folder id: ${req.params.id} and all of it's content`,
+                });
+              } else {
+                return res.json({
+                  meta: {
+                    status: 406,
+                  },
+                  data: `Could not delete folder id: ${req.params.id} but the content was deleted, we're sorry ;(`,
+                });
+              }
+            })
+            .catch((err) => {
+              return res.json({
+                meta: {
+                  status: 500,
+                },
+                data: {
+                  ok: false,
+                  error: err,
+                  msg: "Unknown problem, check the error msg",
+                },
+              });
+            });
         } else {
           return res.json({
             meta: {

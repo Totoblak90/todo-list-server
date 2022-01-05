@@ -11,16 +11,16 @@ module.exports = {
       },
     })
       .then((todos) => {
-        console.log(todos)
+        console.log(todos);
         return res.json({
           meta: {
             status: 200,
           },
-          data: [...todos]
+          data: [...todos],
         });
       })
       .catch((err) => {
-        console.log(err)
+        console.log(err);
         return res.json({
           meta: {
             status: 500,
@@ -132,34 +132,72 @@ module.exports = {
         },
       },
     })
-    .then((x) => {
-      if (x) {
+      .then((x) => {
+        if (x) {
+          return res.json({
+            meta: {
+              status: 200,
+            },
+            data: `Successfully deleted TODO id: ${req.params.todoid}`,
+          });
+        } else {
+          return res.json({
+            meta: {
+              status: 406,
+            },
+            data: `Could not delete TODO id: ${req.params.todoid}`,
+          });
+        }
+      })
+      .catch((err) => {
         return res.json({
           meta: {
-            status: 200,
+            status: 500,
           },
-          data: `Successfully deleted TODO id: ${req.params.todoid}`,
-        });
-      } else {
-        return res.json({
-          meta: {
-            status: 406,
+          data: {
+            ok: false,
+            error: err,
+            msg: "Unknown problem, check the error msg",
           },
-          data: `Could not delete TODO id: ${req.params.todoid}`,
         });
-      }
-    })
-    .catch((err) => {
-      return res.json({
-        meta: {
-          status: 500,
-        },
-        data: {
-          ok: false,
-          error: err,
-          msg: "Unknown problem, check the error msg",
-        },
       });
-    });
+  },
+  bulkDelete: (req, res, next) => {
+    db.Todo.destroy({
+      where: {
+        folders_id: {
+          [db.Sequelize.Op.like]: [req.params.folderid],
+        },
+      },
+    })
+      .then((x) => {
+        if (x) {
+          return res.json({
+            meta: {
+              status: 200,
+            },
+            data: `Successfully deleted ALL TODOS associated to folders id: ${req.params.folderid}`,
+          });
+        } else {
+          return res.json({
+            meta: {
+              status: 406,
+            },
+            data: `Could not delete content associated to folder id: ${req.params.folderid}`,
+          });
+        }
+      })
+      .catch((err) => {
+        return res.json({
+          meta: {
+            status: 500,
+          },
+          data: {
+            ok: false,
+            error: err,
+            msg: "Unknown problem, check the error msg",
+          },
+        });
+      });
   },
 };

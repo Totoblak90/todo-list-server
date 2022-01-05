@@ -12,6 +12,9 @@ async function findUser(email) {
       include: [
         {
           association: "Folders",
+          include: {
+            association: "Todos"
+          }
         },
         {
           association: "Todos",
@@ -46,6 +49,7 @@ module.exports = {
         },
       });
     } else {
+      console.log(user)
       res.json({
         meta: {
           status: 401,
