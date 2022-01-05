@@ -18,7 +18,18 @@ module.exports = {
           },
         });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        return res.json({
+          meta: {
+            status: 500,
+          },
+          data: {
+            ok: false,
+            error: err,
+            msg: "Unknown problem, check the error msg",
+          },
+        });
+      });
   },
   create: (req, res, next) => {
     let errors = validationResult(req);
@@ -35,7 +46,7 @@ module.exports = {
       });
     } else {
       db.Folder.create({
-        users_id: req.body.user_id,
+        users_id: req.body.users_id,
         name: req.body.name,
       })
         .then((value) => {
@@ -50,7 +61,18 @@ module.exports = {
             },
           });
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          return res.json({
+            meta: {
+              status: 500,
+            },
+            data: {
+              ok: false,
+              error: err,
+              msg: "Unknown problem, check the error msg",
+            },
+          });
+        });
     }
   },
   edit: (req, res, next) => {
@@ -67,27 +89,60 @@ module.exports = {
       }
     )
       .then((value) => {
-        if (value[0]) {
-          return res.json({
-            meta: {
-              status: 200,
+        db.Folder.findAll({
+          where: {
+            id: {
+              [db.Sequelize.Op.like]: [req.params.id],
             },
-            data: {
-              message: "Edited correctly",
-            },
+          },
+        })
+          .then((folder) => {
+            if (value[0]) {
+              return res.json({
+                meta: {
+                  status: 200,
+                },
+                data: {
+                  message: "Edited correctly",
+                  folder: folder[0].dataValues,
+                },
+              });
+            } else {
+              return res.json({
+                meta: {
+                  status: 406,
+                },
+                data: {
+                  message: "Invalid id",
+                },
+              });
+            }
+          })
+          .catch((err) => {
+            return res.json({
+              meta: {
+                status: 500,
+              },
+              data: {
+                ok: false,
+                error: err,
+                msg: "Unknown problem, check the error msg",
+              },
+            });
           });
-        } else {
-          return res.json({
-            meta: {
-              status: 406,
-            },
-            data: {
-              message: "Invalid id",
-            },
-          });
-        }
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        return res.json({
+          meta: {
+            status: 500,
+          },
+          data: {
+            ok: false,
+            error: err,
+            msg: "Unknown problem, check the error msg",
+          },
+        });
+      });
   },
   delete: (req, res, next) => {
     db.Folder.destroy({
@@ -114,6 +169,17 @@ module.exports = {
           });
         }
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        return res.json({
+          meta: {
+            status: 500,
+          },
+          data: {
+            ok: false,
+            error: err,
+            msg: "Unknown problem, check the error msg",
+          },
+        });
+      });
   },
 };
