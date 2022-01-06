@@ -15,10 +15,19 @@ app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
 
+// Routes
 app.use("/api/todos", todosRouter);
 app.use("/api/folders", foldersRouter);
 app.use("/api/users", usersRouter);
+
+app.use(express.static(process.cwd() + "/public/"));
+
+app.get("/", (req, res) => {
+  res.sendFile(process.cwd() + "/public/index.html");
+});
+app.get("*", (req, res) => {
+  res.sendFile(process.cwd() + "/public/index.html");
+});
 
 module.exports = app;
