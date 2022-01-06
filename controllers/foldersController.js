@@ -152,6 +152,44 @@ module.exports = {
       });
   },
   delete: (req, res, next) => {
+    db.Folder.destroy({
+      where: {
+        id: {
+          [db.Sequelize.Op.like]: [req.params.id],
+        },
+      },
+    })
+      .then((x) => {
+        if (x) {
+          return res.json({
+            meta: {
+              status: 200,
+            },
+            data: `Successfully deleted folder id: ${req.params.id}`,
+          });
+        } else {
+          return res.json({
+            meta: {
+              status: 406,
+            },
+            data: `Could not delete folder id: ${req.params.id}`,
+          });
+        }
+      })
+      .catch((err) => {
+        return res.json({
+          meta: {
+            status: 500,
+          },
+          data: {
+            ok: false,
+            error: err,
+            msg: "Unknown problem, check the error msg",
+          },
+        });
+      });
+  },
+  deleteWithTasks: (req, res, next) => {
     db.Todo.destroy({
       where: {
         folders_id: req.params.id,
